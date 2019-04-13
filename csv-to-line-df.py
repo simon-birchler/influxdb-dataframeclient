@@ -3,11 +3,12 @@ import logging
 import argparse
 import json
 import sys
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 from datetime import datetime
-
-from influxdb import InfluxDBClient
 from influxdb import DataFrameClient
+
 
 
 # --------------------------------------------------------------------------- #
@@ -57,35 +58,36 @@ if __name__ == "__main__":
     # --------------------------------------------------------------------------- #
     logger.info("Starting program")
     
-    #determine measurement, tags, fields and data file
+    #read measurement, tags, fields and data file from config file
     measurement = config['measurement']
     tag_list = config['tags']
     field_list = config['fields']
     time_stamp = config['time_stamp']
     data_path = config['data_path']
     
-    logger.info("data file: " + data_path) 
+    counter = 0
     
-    #read csv
-    df = pd.read_csv(data_path)
-    df[time_stamp] = pd.to_datetime(df[time_stamp])
-    #the time should be the index of the dataframe
-    df = df.set_index(time_stamp)
-    #logger.info(df.dtypes)
-    for f in field_list:
-        #delete rows with unkown field-values, here marked as "-" in the csv
-        df = df[df[f] != "-"]
-        #convert field-values to int, convertion can differ depending on the data
-        df[f] = df[f].astype(int).fillna(0)
-    #tags for influxdb are required to be strings
-    for t in tag_list:
-        df[t] = df[t].astype(str)
+    logger.info("Inserting datapoints in measurement " + measurement)
+    
+    for f in listdir(data_path):
+        if isfile(join(data_path, f)):        
+            file_path = data_path + "/" + f
+            logger.info("Reading data file: " + file_path)          
+            #read csv
+            df = pd.read_csv(file_path)
+            df[time_stamp] = pd.to_datetime(df[time_stamp])
+            #the time should be the index of the dataframe
+            df = df.set_index(time_stamp)
+            for f in field_list:
+                #delete rows with unkown field-values, here marked as "-" in the csv
+                df = df[df[f] != "-"]
+                #convert field-values to int, convertion can differ depending on the data
+                df[f] = df[f].astype(int).fillna(0)
+                counter += len(df.index)
+            #tags for influxdb are required to be strings
+            for t in tag_list:
+                df[t] = df[t].astype(str)
             
-    #logger.info(df.dtypes)
-    
-    #counter = len(df.index)
-    
-    logger.info("Inserting " + measurement + "to DB...")
-    idb_client.write_points(df,measurement, tag_columns=tag_list, field_columns=field_list, time_precision='s')
-    #logger.info("Inserted " +  str(counter) +  " rows")
-    logger.info("Ending program")
+            logger.info("Inserting sto DB...")
+            idb_client.write_points(df,measurement, tag_columns=tag_list, field_columns=field_list, time_precision='s')
+    logger.info("Inserted " + str(counter) + " datapoints in total. Ending program")

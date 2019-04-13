@@ -10,7 +10,7 @@
 		            "sec_sleep_after_insert": "1"
 		          },
 
-	"data_path": "DELAY/data/DELAY01.csv",
+	"data_path": "DELAY/data",
 	"measurement": "delay",
 	"time_stamp": "Time",
 	"tags": [ "NeId" ,
