@@ -69,12 +69,13 @@ if __name__ == "__main__":
     #read csv
     df = pd.read_csv(data_path)
     df[time_stamp] = pd.to_datetime(df[time_stamp])
+    #the time should be the index of the dataframe
     df = df.set_index(time_stamp)
-    logger.info(df.dtypes)
+    #logger.info(df.dtypes)
     for f in field_list:
         #delete rows with unkown field-values, here marked as "-" in the csv
         df = df[df[f] != "-"]
-        #convert field-values to float, convertion can differ depending on the data
+        #convert field-values to int, convertion can differ depending on the data
         df[f] = df[f].astype(int).fillna(0)
     #tags for influxdb are required to be strings
     for t in tag_list:
@@ -82,7 +83,7 @@ if __name__ == "__main__":
             
     #logger.info(df.dtypes)
     
-    counter = len(df.index)
+    #counter = len(df.index)
     
     logger.info("Inserting " + measurement + "to DB...")
     idb_client.write_points(df,measurement, tag_columns=tag_list, field_columns=field_list, time_precision='s')
