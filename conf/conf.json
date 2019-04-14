@@ -1,0 +1,20 @@
+{
+	"influxdb_connection": {
+		            "host": "localhost",
+		            "port": "8086",
+		            "user": "influxd_user",
+		            "password": "influxd_password",
+		            "db": "db_name",
+		            "time_precision": "s",
+		            "max_lines_per_insert": "5000",
+		            "sec_sleep_after_insert": "1"
+		          },
+
+	"data_path": "data",
+	"measurement": "time-series",
+	"time_stamp": "Time",
+	"tags": [ "tag1" ,
+		"tag2"],
+	"fields":[ "field1" ,
+		"field2"]
+}
