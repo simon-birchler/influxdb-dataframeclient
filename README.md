@@ -1,5 +1,5 @@
 # influxdb-dataframeclient
-Simple script using the influx DataframeClient to import data from a csv file into an influxdb.
+Simple Python script using the influx DataframeClient to import data from a csv file into an influxdb.
 
 Arguments:
 - c: relative path to a config json file. A config file is required.
